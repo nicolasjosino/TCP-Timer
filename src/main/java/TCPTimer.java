@@ -8,29 +8,32 @@ public class TCPTimer {
     private double devRTT;
     private double timeoutInterval;
 
-    public TCPTimer() {
+    public TCPTimer(double firstSample) {
         alpha = 0.125;
         beta = 0.25;
         sampleRTTs = new ArrayList<>();
-        estimatedRTT = 0.125;
-        devRTT = 0.25;
-        timeoutInterval = estimatedRTT + 4 * devRTT;
+        addSample(firstSample);
+    }
+
+    public TCPTimer(double alpha, double beta, double firstSample) {
+        this.alpha = alpha;
+        this.beta = beta;
+        sampleRTTs = new ArrayList<>();
+        addSample(firstSample);
+    }
+
+    public TCPTimer(ArrayList<Double> sampleRTTs) {
+        alpha = 0.125;
+        beta = 0.25;
+        this.sampleRTTs = sampleRTTs;
+        calcRTTs(lastSample());
     }
 
     public TCPTimer(double alpha, double beta, ArrayList<Double> sampleRTTs) {
         this.alpha = alpha;
         this.beta = beta;
         this.sampleRTTs = sampleRTTs;
-    }
-
-    public TCPTimer(double alpha, double beta, ArrayList<Double> sampleRTTs, double estimatedRTT,
-                    double devRTT) {
-        this.alpha = alpha;
-        this.beta = beta;
-        this.sampleRTTs = sampleRTTs;
-        this.estimatedRTT = estimatedRTT;
-        this.devRTT = devRTT;
-        timeoutInterval = estimatedRTT + 4 * devRTT;
+        calcRTTs(lastSample());
     }
 
     public double getAlpha() {
@@ -55,6 +58,10 @@ public class TCPTimer {
 
     public double getTimeoutInterval() {
         return timeoutInterval;
+    }
+
+    public double lastSample() {
+        return sampleRTTs.get(sampleRTTs.size() - 1);
     }
 
     public void addSample(double sample) {
